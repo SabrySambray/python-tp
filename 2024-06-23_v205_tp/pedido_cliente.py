@@ -7,6 +7,7 @@ from colorama import init
 from colorama import Fore, Back, Style
 from logo import monty
 from gracias import monty_chau
+import os
 def ticket(ticket_db,ticket_total):
     medio_pago = "0" # "0" = sin medio de pago seleccionado / "1" medio de pago cancelado
     while True and medio_pago == "0":
@@ -44,26 +45,30 @@ def ticket(ticket_db,ticket_total):
             if keyboard.is_pressed('esc'):
                 print(Back.LIGHTRED_EX + f" Se canceló la operación. ")
                 medio_pago = "1"
-                sleep(5)
+                sleep(2)
                 break 
         while True and medio_pago != "1":
             if keyboard.is_pressed('s'):
                 print("Medio de pago aceptado")
-                sleep(5)
+                sleep(2)
                 break
             else:
                 if keyboard.is_pressed('n'):
                     print("Medio de pago cancelado, seleccione nuevamente")
-                    sleep(5)
+                    sleep(4)
                     medio_pago = "0"
                     break
-    
     print(f" Presione la tecla [C] para continuar. ") 
     while True:
-        if keyboard.is_pressed('c'):break
-    monty_chau()
-    sleep(5)
-    
+        if keyboard.is_pressed('c'):
+            sleep(0.5)
+            break
+    if medio_pago!="1":
+        monty_chau() # pantalla de despedida
+    sleep(2)
+    return(medio_pago)
+
+
 def main():
     carrito_db = []
     producto = traer_productos() # importar productos de base externa
@@ -133,7 +138,7 @@ def main():
                     break # salir de while teclado   
                 if keyboard.is_pressed('esc'): # tecla escape
                     producto_cant = 1 ##                    
-                    indice_p = len(producto) + 1
+                    indice_p = len(producto) + 1 # indice_p mayor a len(producto) entonces sale de while principal
                     sleep(0.2)                
                     print("Pedido Cancelado")            
                     break # salir de while teclado
@@ -151,7 +156,11 @@ def main():
                     break # salir de while teclado
                 if keyboard.is_pressed('enter') and carrito_total > 0: # si tecla enter y si hay items a facturar
                     sleep(0.3)
-                    ticket(carrito_db,temp_format)# ir a pantalla ticket y medios de pago
+                    pago = ticket(carrito_db,temp_format)# ir a pantalla ticket y medios de pago -> devuelve medio de pago elegido
+                    producto_cant = 1 #
+                    if pago == "t" or  pago == "d" or  pago == "q": # si medio de pago elegido t=tarjeta d=debito q=qr/app
+                        indice_p = len(producto) + 1 # indice_p mayor a len(producto) entonces sale de while principal
+                    sleep(0.2)
                     break # salir de while teclado
                 if keyboard.is_pressed('delete'): # tecla delete
                     sleep(0.3)                 
@@ -162,6 +171,8 @@ def main():
 
 init(autoreset=True)
 monty()
-input(Style.BRIGHT + Fore.GREEN + "                        Presione ENTER para continuar ")
+input(Style.BRIGHT + Fore.GREEN + "                       Presione ENTER para continuar ")
 main()
+input() # limpiar buffer de input
 screen_clear()
+os._exit(0)
